@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Filter from './components/Filter';
 import Form from './components/Form';
 import Persons from './components/Persons';
+import axios from 'axios';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,9 +11,12 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('');
   const [filter, setFilter] = useState('');
 
-  useEffect(()=>{
-    console.log('Es el effect')
-  },[])
+  useEffect(() => {
+    axios
+      .get('http://localhost:3004/persons')
+      .then((response) => setPersons(response.data))
+      .catch((err) => console.log(err));
+  }, []);
 
   useEffect(() => {
     const arrayFilter = persons.filter(
