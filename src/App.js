@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Filter from './components/Filter';
 import Form from './components/Form';
 import Persons from './components/Persons';
-import notes from './services/notes'
+import notes from './services/notes';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -12,7 +12,8 @@ const App = () => {
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    notes.getAll()
+    notes
+      .getAll()
       .then((result) => setPersons(result))
       .catch((err) => console.log(err));
   }, []);
@@ -32,37 +33,41 @@ const App = () => {
       (person) => person.name.toLowerCase() === newName.toLowerCase()
     );
 
-    const newContact = { name: newName, number: newNumber }
+    const newContact = { name: newName, number: newNumber };
 
     if (findUser) {
-      notes.update(findUser.id, newContact)
-      .then(setPersons(persons.map(person => person.id !== findUser.id ? person : newContact)))
-      .catch(err => console.log(err));
+      notes
+        .update(findUser.id, newContact)
+        .then(
+          setPersons(
+            persons.map((person) =>
+              person.id !== findUser.id ? person : newContact
+            )
+          )
+        )
+        .catch((err) => console.log(err));
 
       resetInput();
 
       return;
     }
 
-    addNewContact(newContact); 
+    notes
+      .create(newContact)
+      .then(setPersons([...persons, newContact]))
+      .catch((err) => console.log(err));
 
-    setPersons([...persons, newContact]);
     resetInput();
   };
 
-  const addNewContact = (newContact) => {
-    notes.create(newContact)
-      .catch(err => console.log(err));
-  }
-
   const handleDelete = (id) => {
-    const newArray = persons.filter(elem => elem.id !== id)
-    
-    setPersons(newArray);
+    const newArray = persons.filter((elem) => elem.id !== id);
 
-    notes.deleteContact(id)
-      .catch (err => console.log(err))
-  }
+    notes
+      .deleteContact(id)
+      .then(setPersons(newArray))
+      .catch((err) => console.log(err));
+  };
 
   const resetInput = () => {
     setNewName('');
@@ -82,7 +87,11 @@ const App = () => {
         setNewNumber={setNewNumber}
       />
       <h2>Numbers</h2>
-      <Persons persons={persons} personsFilter={personsFilter} handleDelete={handleDelete} />
+      <Persons
+        persons={persons}
+        personsFilter={personsFilter}
+        handleDelete={handleDelete}
+      />
     </>
   );
 };
